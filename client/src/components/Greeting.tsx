@@ -7,7 +7,7 @@ export default function Greeting() {
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
 
-   const displayName = user ? `${user.id} ${user.email}` : "Guest";
+   const displayName = user ? `${user.id} ${user.email} ${user.firstName}` : "Guest";
 
   return (
     <>

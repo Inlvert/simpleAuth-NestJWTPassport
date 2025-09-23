@@ -40,6 +40,6 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    return { id: req.user.id, email: req.user.email };
+    return { id: req.user.id, email: req.user.email, firstName: req.user.firstName, lastName: req.user.lastName};
   }
 }
