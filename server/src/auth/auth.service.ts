@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 
@@ -14,7 +14,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
-    const matchPassword = await bcrypt.compare(password, user?.password);
+    const matchPassword = await bcrypt.compare(password, user!.password);
 
     console.log('matchPassword', matchPassword);
 
