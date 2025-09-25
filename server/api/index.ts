@@ -21,3 +21,4 @@ export default async function handler(req: Request, res: Response) {
   const server = await bootstrapServer();
   return server(req, res);
 }
+

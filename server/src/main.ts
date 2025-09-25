@@ -1,9 +1,23 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from '../src/app.module';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+import serverless from 'serverless-http';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-  await app.listen(process.env.PORT ?? 5000);
-}
-bootstrap();
+let cachedServer: ReturnType<typeof serverless>;
+
+const bootstrapServer = async () => {
+  if (!cachedServer) {
+    const server = express();
+    const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+    app.enableCors();
+    await app.init();
+    cachedServer = serverless(server); // serverless wrapper
+  }
+  return cachedServer;
+};
+
+export default async (req, res) => {
+  const handler = await bootstrapServer();
+  return handler(req, res);
+};
