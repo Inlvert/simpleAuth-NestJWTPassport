@@ -1,26 +1,23 @@
-import { createServer } from 'http';
-import { VercelApiHandler } from '@vercel/node';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../../server/src/app.module';
+import { AppModule } from '../src/app.module';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
+import express, { Request, Response } from 'express';
+import serverless from 'serverless-http';
 
-let cachedServer: VercelApiHandler;
+let cachedServer: ReturnType<typeof serverless>;
 
-const bootstrapServer = async (): Promise<VercelApiHandler> => {
-  const server = express();
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(server),
-  );
-  app.enableCors();
-  await app.init();
-  return server;
+const bootstrapServer = async () => {
+  if (!cachedServer) {
+    const server = express();
+    const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+    app.enableCors();
+    await app.init();
+    cachedServer = serverless(server);
+  }
+  return cachedServer;
 };
 
-export default async function handler(req: any, res: any) {
-  if (!cachedServer) {
-    cachedServer = await bootstrapServer();
-  }
-  return cachedServer(req, res);
+export default async function handler(req: Request, res: Response) {
+  const server = await bootstrapServer();
+  return server(req, res);
 }
